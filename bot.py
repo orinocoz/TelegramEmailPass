@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 
-BOT_TOKEN = '1678862072:AAHxLwixFSQcFDjBbHKmzXGttKQkGJXEJVs'
+BOT_TOKEN = 'your_token'
 bot = telebot.TeleBot(BOT_TOKEN)
 
 
@@ -30,7 +30,7 @@ def answer(call):
 @bot.message_handler(content_types=['text'])
 def main_func(message):  # простая функция в случае выполнения условия прини()мающая аргументом сообщение пользователя
     lists = []
-    with open('VK_100M.txt', 'r', encoding='utf-8', errors='ignore') as file:
+    with open('base.txt', 'r', encoding='utf-8', errors='ignore') as file:
         for i in file:
             if message.text in i:
                 lists.append(i)
