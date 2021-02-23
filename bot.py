@@ -1,8 +1,10 @@
 import telebot
 from telebot import types
+import os
+import subprocess
+from config import bot_token, base_catalog
 
-BOT_TOKEN = 'your_token'
-bot = telebot.TeleBot(BOT_TOKEN)
+bot = telebot.TeleBot(bot_token)
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -28,25 +30,38 @@ def answer(call):
 
 
 @bot.message_handler(content_types=['text'])
-def main_func(message):  # простая функция в случае выполнения условия прини()мающая аргументом сообщение пользователя
-    lists = []
-    with open('base.txt', 'r', encoding='utf-8', errors='ignore') as file:
-        for i in file:
-            if message.text in i:
-                lists.append(i)
-            else:
-                continue
-        else:
-            if not lists:
-                bot.send_message(message.chat.id, 'Нет совпадений в базе')
-            else:
-                for line in lists:
-                    bot.send_message(message.chat.id, line)
+def main_func(message):
+    """Функция принимает текст от пользователя и ищет в базе"""
+
+    # TODO: сделать регулярное выражение на входе чтобы принимала программа только почту
+    # TODO: сделать чтобы закрывали звездочки пароль
+    # TODO: организовать логирование
+    # TODO: фото можно подцепить из URL в соц сетях модифицировав её на основе почты
+
+    os.chdir(base_catalog)
+    try:
+        cod_search = subprocess.run(['./query.sh', message.text], stdout=subprocess.PIPE)
+        file_simple = cod_search.stdout.decode('utf-8')
+        bot.send_message(message.chat.id, file_simple)
+    except Exception as err:
+        print(err)
+
+    # with open('VK_100M.txt', 'r', encoding='utf-8', errors='ignore') as file:
+    #     for i in file:
+    #         if message.text in i:
+    #             lists.append(i)
+    #         else:
+    #             continue
+    #     else:
+    #         if not lists:
+    #             bot.send_message(message.chat.id, 'Нет совпадений в базе')
+    #         else:
+    #             for line in lists:
+    #                 bot.send_message(message.chat.id, line)
 
 
 while True:
     try:
         bot.polling(none_stop=True)
-
     except Exception as e:
         print(e)
