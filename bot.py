@@ -4,6 +4,11 @@ import os
 import subprocess
 from config import bot_token, base_catalog
 
+# TODO: сделать регулярное выражение на входе чтобы принимала программа только почту
+# TODO: организовать логирование
+# TODO: расширить функцианал фото можно подцепить из URL в соц сетях модифицировав её на основе почты цели
+# TODO:
+
 bot = telebot.TeleBot(bot_token)
 
 
@@ -32,37 +37,32 @@ def answer(call):
 @bot.message_handler(content_types=['text'])
 def main_func(message):
     """Функция принимает текст от пользователя и ищет в базе"""
+
     with open('log.txt', 'a', encoding='utf-8', errors='ignore') as file_log:
         file_log.writelines(message.text + '\n')
         file_log.close()
-    # TODO: сделать регулярное выражение на входе чтобы принимала программа только почту
-    # TODO: сделать чтобы закрывали звездочки пароль
-    # TODO: организовать логирование
-    # TODO: фото можно подцепить из URL в соц сетях модифицировав её на основе почты цели
 
+    lists = []
     os.chdir(base_catalog)
+
     try:
-        cod_search = subprocess.run(['./query.sh', message.text], stdout=subprocess.PIPE)
-        file_simple = cod_search.stdout.decode('utf-8', errors='ignore')
-        bot.send_message(message.chat.id, file_simple)
+        cmd_console = subprocess.run(['./query.sh', message.text], stdout=subprocess.PIPE)
+        out_interpreter = cmd_console.stdout.decode('utf-8', errors='ignore')
+
+        if message.text in out_interpreter:
+            for i in out_interpreter.split():
+                lists.append(''.join(i)[:-3] + '***')
+            bot.send_message(message.chat.id, 'Найдено совпадений: ' + str(len(lists)))
+            bot.send_message(message.chat.id, '\n'.join(lists[0:5]))
+            bot.send_message(message.chat.id, 'Получить больше иинфы без звездочек бесплатно, напиши мне: @b0t_for_you ')
+        else:
+            bot.send_message(message.chat.id, 'Нет совпадений в базе')
     except telebot.apihelper.ApiException:
-        bot.send_message(message.chat.id, 'Нет совпадений')
+        bot.send_message(message.chat.id, 'Что то пошло не так 1')
         print('ApiException')
     except Exception as err:
+        bot.send_message(message.chat.id, 'Что то пошло не так 2')
         print(err)
-
-    # with open('VK_100M.txt', 'r', encoding='utf-8', errors='ignore') as file:
-    #     for i in file:
-    #         if message.text in i:
-    #             lists.append(i)
-    #         else:
-    #             continue
-    #     else:
-    #         if not lists:
-    #             bot.send_message(message.chat.id, 'Нет совпадений в базе')
-    #         else:
-    #             for line in lists:
-    #                 bot.send_message(message.chat.id, line)
 
 
 while True:
