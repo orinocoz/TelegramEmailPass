@@ -1,6 +1,7 @@
 import telebot
 from telebot import types
 import os
+import time
 import subprocess
 from config import bot_token, base_catalog
 
@@ -27,6 +28,7 @@ def send_welcome(message):
                                           '\n И только в ознакомительных целях', reply_markup=markup_inline)
     except Exception as err:
         bot.send_message(message.chat.id, 'Попробуйте еще раз')
+        print(err)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -59,14 +61,19 @@ def main_func(message):
             about_up = 'Найдено совпадений: ' + str(len(lists)) + '\n\n'
             about_down = '\n\nПолучить больше инфы без звездочек бесплатно, напиши мне: @b0t_for_you '
             bot.send_message(message.chat.id, about_up + '\n'.join(lists[0:5]) + about_down)
+            time.sleep(5)
         else:
             bot.send_message(message.chat.id, 'Нет совпадений в базе')
+            time.sleep(5)
+
     except telebot.apihelper.ApiException:
         bot.send_message(message.chat.id, 'Что то пошло не так 1')
         print('ApiException')
+        time.sleep(5)
     except Exception as err:
         bot.send_message(message.chat.id, 'Что то пошло не так 2')
         print(err)
+        time.sleep(5)
 
 
 while True:
