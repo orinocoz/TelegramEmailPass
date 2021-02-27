@@ -44,7 +44,6 @@ def answer(call):
 @bot.message_handler(content_types=['text'])
 def main_func(message):  # принимает любой текст что напишет пользователь в поле чата
     """Функция принимает текст от пользователя и ищет в базе"""
-
     with open('log.txt', 'a', encoding='utf-8', errors='ignore') as file_log:  # открываем файл для логирования
         file_log.writelines(message.text + '\n')  # записываем что ввел пользователь в файл
         file_log.close()  # гарантированно закрываем файл(?)
